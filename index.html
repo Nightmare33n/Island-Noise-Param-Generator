@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Island Noise Tuner</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <p class="eyebrow">CustomDimension</p>
+        <h1>Island Noise Tuner</h1>
+        <p class="lede">Replica visual de <strong>getArchipelagoBase</strong> y <strong>getSurfaceHeight</strong> para ajustar los valores exactos antes de editarlos en Java.</p>
+        <p class="mini-note">Los nombres técnicos sí coinciden con el código Java. La visualización usa una aproximación local del ruido para iterar rápido.</p>
+      </div>
+
+      <section class="panel compact">
+        <h2>Runtime</h2>
+        <div class="seed-row">
+          <label>
+            <span>seed</span>
+            <input id="seedInput" type="number" value="2806">
+          </label>
+          <button id="randomSeedButton" type="button">Random seed</button>
+        </div>
+        <div class="seed-row two-columns">
+          <label>
+            <span>sampleLineZ</span>
+            <input id="sampleLineZ" type="number" value="0">
+          </label>
+          <label>
+            <span>mapSpan</span>
+            <input id="mapSpan" type="number" value="900">
+          </label>
+        </div>
+      </section>
+        <section class="panel compact preset-panel">
+          <h2>Presets / Import</h2>
+          <div id="presetButtons" class="preset-buttons"></div>
+          <label>
+            <span>Pega un bloque tipo key = value</span>
+            <textarea id="presetInput" class="preset-input" spellcheck="false" placeholder="Technical values to send back:
+  islandMassScale = 0.0030
+  landThreshold = 0.1950"></textarea>
+          </label>
+          <div class="button-row two-columns">
+            <button id="applyPresetButton" type="button">Aplicar preset</button>
+            <button id="clearPresetButton" type="button">Limpiar</button>
+          </div>
+          <p id="presetStatus" class="mini-note">Puedes cargar presets rápidos o pegar un bloque completo.</p>
+        </section>
+
+      <div class="parameter-scroll-area">
+        <section class="panel">
+          <h2>getArchipelagoBase</h2>
+          <div id="controls-archipelago" class="control-list"></div>
+        </section>
+
+        <section class="panel">
+          <h2>getSurfaceHeight</h2>
+          <div id="controls-surface" class="control-list"></div>
+        </section>
+      </div>
+
+      <section class="panel compact">
+        <h2>Export</h2>
+        <div class="button-row">
+          <button id="copyValuesButton" type="button">Copiar valores</button>
+          <button id="resetButton" type="button">Reset</button>
+        </div>
+        <textarea id="exportBox" spellcheck="false" readonly></textarea>
+      </section>
+    </aside>
+
+    <main class="main-content">
+      <section class="hero panel">
+        <div>
+          <p class="eyebrow">Technical Mapping</p>
+          <h2>Nombres exactos que luego voy a editar</h2>
+        </div>
+        <ul class="mapping-list">
+          <li><span>getArchipelagoBase</span><strong>islandMass, islandShape, channelCuts, coastlineNoise</strong></li>
+          <li><span>getSurfaceHeight</span><strong>erosion, detail, landFactor, ridge, ridgeDetail, mountainFactor</strong></li>
+          <li><span>thresholds</span><strong>base &gt; 0.18, base &gt; 0.04, smoothstep(0.18, 0.52, base)</strong></li>
+        </ul>
+      </section>
+
+      <section class="visual-grid">
+        <article class="panel chart-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Cross Section</p>
+              <h2>Densidad y altura a lo largo del eje X</h2>
+            </div>
+            <p class="mini-note">Línea horizontal en <span id="sampleLineZLabel">z = 0</span></p>
+          </div>
+          <canvas id="profileCanvas" width="960" height="430"></canvas>
+          <div class="legend">
+            <span><i class="swatch archipelago"></i>base = archipelago + detail</span>
+            <span><i class="swatch surface"></i>surfaceHeight</span>
+            <span><i class="swatch sea"></i>SEA_LEVEL</span>
+          </div>
+        </article>
+
+        <article class="panel map-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Plan View</p>
+              <h2>Mapa 2D de islas</h2>
+            </div>
+            <p class="mini-note">Arrastra para mover, rueda para zoom, hover para inspección técnica</p>
+          </div>
+          <div class="map-stage">
+            <canvas id="mapCanvas" width="420" height="420"></canvas>
+            <div id="mapTooltip" class="map-tooltip" aria-live="polite"></div>
+          </div>
+          <div class="legend terrain-legend">
+            <span><i class="swatch grass"></i>pasto / tierra emergida</span>
+            <span><i class="swatch beach"></i>playa / transicion</span>
+            <span><i class="swatch shelf"></i>oceano somero</span>
+            <span><i class="swatch deep"></i>oceano profundo</span>
+          </div>
+          <div class="map-readout">
+            <span id="mapCenterReadout">center: (0, 0)</span>
+            <span id="mapZoomReadout">zoom: 1.00x</span>
+            <span id="mapSpanReadout">span: 900</span>
+          </div>
+        </article>
+      </section>
+
+      <section class="lower-grid">
+        <article class="panel stats-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Readout</p>
+              <h2>Métricas rápidas</h2>
+            </div>
+          </div>
+          <div id="statsGrid" class="stats-grid"></div>
+        </article>
+
+        <article class="panel code-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Java Preview</p>
+              <h2>Valores listos para trasladar</h2>
+            </div>
+          </div>
+          <pre id="codePreview"></pre>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
