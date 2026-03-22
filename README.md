@@ -18,6 +18,19 @@ Variable names match the Java code exactly.
 
 ---
 
+## Getting started
+
+```bash
+git clone https://github.com/your-username/island-noise-param-generator.git
+cd island-noise-param-generator
+```
+
+Then open `index.html` in your browser — that's it. No npm, no server, no build step.
+
+> On Windows you can just double-click `index.html`. On macOS/Linux: `open index.html` or `xdg-open index.html`.
+
+---
+
 ## Usage
 
 ### 1. Open the tool
